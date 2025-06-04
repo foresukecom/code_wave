@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Digital Rain - SNS Share</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div id="inputSection" class="container">
+        <h1 class="text-2xl font-bold text-green-400 mb-4 text-center">Matrix Message Generator</h1>
+        <p class="text-sm text-gray-300 mb-4 text-center">SNSで共有したいメッセージを入力してください。メッセージはマトリックスの背景に「こっそり」と表示されます。</p>
+        <textarea id="userMessage" placeholder="ここにメッセージを入力..."></textarea>
+        <button id="generateMatrixButton" class="button-style w-full">マトリックスを生成</button>
+    </div>
+
+    <div id="matrixSection" class="container hidden">
+        <h1 class="text-2xl font-bold text-green-400 mb-4 text-center">Matrix Effect</h1>
+        <div id="shareLinkContainer">
+            <p>このマトリックスを共有:</p>
+            <input type="text" id="shareLink" readonly>
+            <button id="copyLinkButton" class="button-style w-full mt-2">リンクをコピー</button>
+        </div>
+        <div id="controls">
+            <button id="resetButton" class="button-style bg-gray-600 hover:bg-gray-500">新しいメッセージを作成</button>
+        </div>
+        <div id="statusMessage"></div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
