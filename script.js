@@ -29,6 +29,7 @@ const animationDuration = 30000; // 30秒かけてメッセージ全体を表示
 const updateIntervalFrames = 60; // 約1秒ごとにキーワードリストを更新 (フレーム数)
 const animationDelay = 50;
 
+let frameCount = 0; // グローバルスコープにframeCountを宣言
 function initializeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -72,7 +73,10 @@ function generateKeywordsFromText(text, chunkSize = 5) {
     if (chunkSize >= cleanedText.length && cleanedText.length > 0) {
         return [cleanedText];
     }
-    // ... (元のgenerateKeywordsFromTextの分割ロジックが抜けているようです。後で修正します)
+    for (let i = 0; i < cleanedText.length; i += chunkSize) {
+        words.push(cleanedText.substring(i, i + chunkSize));
+    }
+    return words.filter(word => word.trim() !== "");
 }
 
 function draw() {
@@ -81,7 +85,6 @@ function draw() {
     ctx.font = fontSize + 'px monospace';
 
     // キーワードリストの動的更新
-    // NOTE: frameCount 変数が宣言されていません。draw関数の外で `let frameCount = 0;` を宣言する必要があります。
     frameCount++;
     if (frameCount % updateIntervalFrames === 0) {
         const currentTime = Date.now();
@@ -174,10 +177,17 @@ function startMatrix(customKeywords = [], showControls = false) {
     frameCount = 0; // フレームカウントをリセット
     // 共有リンクの設定
     const currentUrl = new URL(window.location.href); // ベースURLとして現在のURLを使用
-    if (customKeywords.length > 0 && userMessageInput.value) { // userMessageInput.value を正として使用
-        currentUrl.searchParams.set('text', encodeURIComponent(userMessageInput.value));
+    // 既存の 'd' パラメータを削除
+    currentUrl.searchParams.delete('d');
+
+    if (customKeywords.length > 0 && userMessageInput.value) {
+        const dataToEncode = { message: userMessageInput.value };
+        const jsonString = JSON.stringify(dataToEncode);
+        // UTF-8 バイト列にエンコードしてから Base64 エンコード
+        const encodedData = btoa(String.fromCharCode(...new TextEncoder().encode(jsonString)));
+        currentUrl.searchParams.set('d', encodedData);
     } else {
-        currentUrl.searchParams.delete('text');
+        currentUrl.searchParams.delete('d'); // メッセージがない場合はパラメータを削除
     }
     shareLinkInput.value = currentUrl.toString();
     console.log(`Share link set to: ${shareLinkInput.value}`);
@@ -243,37 +253,35 @@ window.addEventListener('resize', () => {
 function init() {
     console.log("init() called.");
     const urlParams = new URLSearchParams(window.location.search);
-    const userTextParam = urlParams.get('text');
-    console.log(`URL parameter 'text': ${userTextParam}`);
+    const encodedDataParam = urlParams.get('d'); // 難読化されたパラメータ 'd' を取得
+    console.log(`URL parameter 'd': ${encodedDataParam}`);
 
-    if (userTextParam) {
-        const decodedText = decodeURIComponent(userTextParam);
-        console.log(`Decoded text from URL: "${decodedText}"`);
-        userMessageInput.value = decodedText;
-        originalMessage = decodedText; // 元のメッセージを保存
-        const newKeywords = generateKeywordsFromText(decodedText, 5); // 最初は5文字で分割
-        startMatrix(newKeywords, false); // Loaded from URL, do not show controls
-        console.log("Starting matrix from URL parameter.");
+    if (encodedDataParam) {
+        try {
+            // Base64 デコードしてから UTF-8 バイト列を文字列にデコード
+            const decodedBytes = Uint8Array.from(atob(encodedDataParam), c => c.charCodeAt(0));
+            const data = JSON.parse(new TextDecoder().decode(decodedBytes));
+            if (data && data.message) {
+                const message = data.message;
+                console.log(`Decoded message from URL: "${message}"`);
+                userMessageInput.value = message;
+                originalMessage = message; // 元のメッセージを保存
+                const newKeywords = generateKeywordsFromText(message, 5); // 最初は5文字で分割
+                startMatrix(newKeywords, false); // Loaded from URL, do not show controls
+                console.log("Starting matrix from URL parameter.");
+            }
+        } catch (error) {
+            console.error("Failed to decode or parse URL parameter:", error);
+            // エラー発生時は通常通り入力画面を表示
+            inputSection.classList.remove('hidden');
+            matrixSection.classList.add('hidden');
+            canvas.classList.add('hidden');
+        }
     } else {
         inputSection.classList.remove('hidden');
         matrixSection.classList.add('hidden');
         canvas.classList.add('hidden');
     }
-}
-
-// generateKeywordsFromText の分割ロジックが抜けていたので追加
-function generateKeywordsFromText(text, chunkSize = 5) {
-    if (!text || text.trim() === "") return [];
-    const cleanedText = text.replace(/\s+/g, ' '); // 連続する空白を一つに
-    const words = [];
-    // chunkSize がメッセージ長以上なら、メッセージ全体を一つの要素とする
-    if (chunkSize >= cleanedText.length && cleanedText.length > 0) {
-        return [cleanedText];
-    }
-    for (let i = 0; i < cleanedText.length; i += chunkSize) {
-        words.push(cleanedText.substring(i, i + chunkSize));
-    }
-    return words.filter(word => word.trim() !== "");
 }
 
 init();
