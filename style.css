@@ -106,3 +106,14 @@ canvas {
 .hidden {
     display: none !important;
 }
+
+#backToHomeOverlayButtonContainer {
+    position: fixed; /* 画面に固定 */
+    top: 20px;
+    left: 20px;
+    z-index: 10; /* 他の要素より手前に表示 */
+}
+
+#backToHomeOverlayButton {
+    background-color: rgba(0, 170, 0, 0.7); /* 少し透明度を持たせる */
+}

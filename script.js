@@ -9,6 +9,8 @@ const statusMessage = document.getElementById('statusMessage');
 const shareLinkInput = document.getElementById('shareLink');
 const copyLinkButton = document.getElementById('copyLinkButton');
 const resetButton = document.getElementById('resetButton');
+const backToHomeOverlayButtonContainer = document.getElementById('backToHomeOverlayButtonContainer');
+const backToHomeOverlayButton = document.getElementById('backToHomeOverlayButton');
 
 console.log("Script loaded.");
 let originalMessage = ""; // 元のメッセージを保持する変数
@@ -162,6 +164,7 @@ function startMatrix(customKeywords = [], showControls = false) {
     console.log(`startMatrix called with showControls: ${showControls}`, 'Keywords:', customKeywords);
     inputSection.classList.add('hidden');
     canvas.classList.remove('hidden'); // Ensure canvas is visible
+    if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.remove('hidden');
 
     if (showControls) {
         matrixSection.classList.remove('hidden');
@@ -209,17 +212,24 @@ generateMatrixButton.addEventListener('click', () => {
     startMatrix(newKeywords, true); // User generated, show controls
 });
 
-resetButton.addEventListener('click', () => {
+function resetToInputForm() {
     console.log("Reset button clicked.");
     matrixSection.classList.add('hidden');
     inputSection.classList.remove('hidden');
     canvas.classList.add('hidden');
+    if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden');
     if (animationInterval) clearInterval(animationInterval);
-    
+
     userMessageInput.value = "";
     originalMessage = ""; // 元のメッセージもクリア
     shareLinkInput.value = ""; // 共有リンクもクリア
-});
+}
+
+resetButton.addEventListener('click', resetToInputForm);
+
+if (backToHomeOverlayButton) {
+    backToHomeOverlayButton.addEventListener('click', resetToInputForm);
+}
 
 copyLinkButton.addEventListener('click', () => {
     console.log("Copy link button clicked.");
@@ -281,6 +291,7 @@ function init() {
         inputSection.classList.remove('hidden');
         matrixSection.classList.add('hidden');
         canvas.classList.add('hidden');
+        if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden');
     }
 }
 
