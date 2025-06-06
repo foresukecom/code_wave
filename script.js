@@ -10,8 +10,9 @@ const shareLinkInput = document.getElementById('shareLink');
 const copyLinkButton = document.getElementById('copyLinkButton');
 const resetButton = document.getElementById('resetButton');
 const backToHomeOverlayButtonContainer = document.getElementById('backToHomeOverlayButtonContainer');
+const backToHomeOverlayButton = document.getElementById('backToHomeOverlayButton'); // オーバーレイボタンの要素を取得
+const saveGifButton = document.getElementById('saveGifButton'); // GIF保存ボタンの要素を取得
 
-console.log("Script loaded.");
 let originalMessage = ""; // 元のメッセージを保持する変数
 
 const globalKeywords = ["MATRIX", "CODE", "CYBER", "REALITY", "VIRTUAL"]; // デフォルトキーワード
@@ -31,6 +32,7 @@ const updateIntervalFrames = 60; // 約1秒ごとにキーワードリストを�
 const animationDelay = 50;
 
 let frameCount = 0; // グローバルスコープにframeCountを宣言
+
 function initializeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -64,17 +66,23 @@ function calculateChunkSize(elapsedTime, totalDuration, initialChunkSize, finalC
 }
 
 function generateKeywordsFromText(text, chunkSize = 5) {
+    // 複数行に対応: テキストを行に分割し、各行をチャンクまたは完全な行として扱う
     if (!text || text.trim() === "") return [];
-    const cleanedText = text.replace(/\s+/g, ' '); // 連続する空白を一つに
-    const words = [];
-    // chunkSize がメッセージ長以上なら、メッセージ全体を一つの要素とする
-    if (chunkSize >= cleanedText.length && cleanedText.length > 0) {
-        return [cleanedText];
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line !== ""); // 行に分割、トリム、空行を除外
+    const keywords = [];
+
+    for (const line of lines) {
+        if (chunkSize >= line.length) {
+            // チャンクサイズが行の長さ以上なら、行全体をキーワードとして追加
+            keywords.push(line);
+        } else {
+            // そうでなければ、行をチャンクサイズで分割して追加
+            for (let i = 0; i < line.length; i += chunkSize) {
+                keywords.push(line.substring(i, i + chunkSize));
+            }
+        }
     }
-    for (let i = 0; i < cleanedText.length; i += chunkSize) {
-        words.push(cleanedText.substring(i, i + chunkSize));
-    }
-    return words.filter(word => word.trim() !== "");
+    return keywords; // 生成されたキーワードの配列を返す
 }
 
 function draw() {
@@ -84,24 +92,21 @@ function draw() {
 
     // キーワードリストの動的更新
     frameCount++;
-    if (frameCount % updateIntervalFrames === 0) {
-        const currentTime = Date.now();
-        console.log(`Frame ${frameCount}: Updating keywords. Elapsed time: ${elapsedTime}ms`);
-        const finalChunkSize = originalMessage.length > 0 ? originalMessage.length : 5; // メッセージがない場合はデフォルト5
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - animationStartTime;
+
+    if (frameCount % updateIntervalFrames === 0 || elapsedTime >= animationDuration) {
+        // 最終的なチャンクサイズを最長行の長さに設定
+        const longestLineLength = originalMessage.split('\n').reduce((max, line) => Math.max(max, line.trim().length), 0);
+        const finalChunkSize = longestLineLength > 0 ? longestLineLength : 5;
         const currentChunkSize = calculateChunkSize(elapsedTime, animationDuration, 5, finalChunkSize);
 
-        let newKeywords;
-        if (currentChunkSize >= originalMessage.length && originalMessage.length > 0) {
-             // 最終的にはメッセージ全体を一つのキーワードとして扱う
-             newKeywords = [originalMessage];
-        } else {
-             // 現在のチャンクサイズで分割
-             newKeywords = generateKeywordsFromText(originalMessage, currentChunkSize);
-        }
+        const newKeywords = generateKeywordsFromText(originalMessage, currentChunkSize);
 
         // 全てのストリームのキーワードリストを更新
         streams.forEach(stream => stream.currentKeywords = newKeywords);
     }
+
 
     for (let i = 0; i < streams.length; i++) {
         const stream = streams[i];
@@ -154,6 +159,7 @@ function draw() {
 function startMatrix(customKeywords = [], showControls = false) {
     inputSection.classList.add('hidden');
     canvas.classList.remove('hidden'); // Ensure canvas is visible
+    if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.remove('hidden'); // オーバーレイボタンを表示
 
     if (showControls) {
         matrixSection.classList.remove('hidden');
@@ -161,17 +167,18 @@ function startMatrix(customKeywords = [], showControls = false) {
         matrixSection.classList.add('hidden');
     }
     initializeCanvas();
-    initializeStreams(customKeywords);
+    initializeStreams(customKeywords); // 最初のキーワードリストでストリームを初期化
+    if (animationInterval) clearInterval(animationInterval);
     animationStartTime = Date.now(); // アニメーション開始時刻を記録
-    console.log(`Animation started at ${animationStartTime}`);
     animationInterval = setInterval(draw, animationDelay);
     frameCount = 0; // フレームカウントをリセット
+
     // 共有リンクの設定
     const currentUrl = new URL(window.location.href); // ベースURLとして現在のURLを使用
     // 既存の 'd' パラメータを削除
     currentUrl.searchParams.delete('d');
 
-    if (customKeywords.length > 0 && userMessageInput.value) {
+    if (userMessageInput.value) { // userMessageInput.value が存在する場合のみパラメータを設定
         const dataToEncode = { message: userMessageInput.value };
         const jsonString = JSON.stringify(dataToEncode);
         // UTF-8 バイト列にエンコードしてから Base64 エンコード
@@ -184,23 +191,23 @@ function startMatrix(customKeywords = [], showControls = false) {
 }
 
 generateMatrixButton.addEventListener('click', () => {
-    const userText = userMessageInput.value;
+    const userText = userMessageInput.value; // textareaの値を取得
     if (userText.trim() === "") {
-        // `alert` はCanvas環境では推奨されないため、statusMessageを使用
         statusMessage.textContent = "メッセージを入力してください。";
         setTimeout(() => statusMessage.textContent = '', 3000);
         return;
     }
-    const newKeywords = generateKeywordsFromText(userText);
     originalMessage = userText; // 元のメッセージを保存
-    
+    const newKeywords = generateKeywordsFromText(userText, 5); // 最初は5文字で分割
+
     startMatrix(newKeywords, true); // User generated, show controls
 });
 
 function resetToInputForm() {
     matrixSection.classList.add('hidden');
     inputSection.classList.remove('hidden');
-    if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden');
+    canvas.classList.add('hidden'); // キャンバスも非表示にする
+    if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden'); // オーバーレイボタンを非表示
     if (animationInterval) clearInterval(animationInterval);
 
     userMessageInput.value = "";
@@ -215,11 +222,73 @@ function resetToInputForm() {
 
 resetButton.addEventListener('click', resetToInputForm);
 
-if (backToHomeOverlayButton) {
+if (backToHomeOverlayButton) { // このボタンはオーバーレイ表示用
+    backToHomeOverlayButton.addEventListener('click', resetToInputForm);
 }
 
+if (saveGifButton) {
+    saveGifButton.addEventListener('click', () => {
+        saveGifButton.disabled = true;
+        resetButton.disabled = true;
+        if (backToHomeOverlayButton) backToHomeOverlayButton.disabled = true;
+        statusMessage.textContent = 'GIF生成中... (約3秒間録画)';
+
+        const gif = new GIF({
+            workers: 2,
+            quality: 10,
+            workerScript: './gif.worker.js', // ローカルパスに変更
+            background: '#000000',
+            width: canvas.width,
+            height: canvas.height
+        });
+
+        const recordDuration = 3000; // 3秒間
+        const framesToRecord = recordDuration / animationDelay;
+        let framesRecorded = 0;
+        const originalInterval = animationInterval;
+        if (originalInterval) clearInterval(animationInterval); // 一時的にメインのアニメーションを停止
+
+        function recordFrame() {
+            if (framesRecorded < framesToRecord) {
+                draw(); // 現在のフレームを描画
+                gif.addFrame(canvas, { copy: true, delay: animationDelay });
+                framesRecorded++;
+                statusMessage.textContent = `GIF生成中... ${Math.round((framesRecorded / framesToRecord) * 100)}%`;
+                requestAnimationFrame(recordFrame); // 次のフレームを要求
+            } else {
+                statusMessage.textContent = 'GIFエンコード中...';
+                gif.render();
+            }
+        }
+
+        gif.on('finished', function(blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'matrix_message_animation.gif';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            statusMessage.textContent = 'GIFが保存されました！';
+            saveGifButton.disabled = false;
+            resetButton.disabled = false;
+            if (backToHomeOverlayButton) backToHomeOverlayButton.disabled = false;
+            if (!matrixSection.classList.contains('hidden')) { // マトリックス表示中ならアニメーション再開
+                animationInterval = setInterval(draw, animationDelay);
+            }
+            setTimeout(() => statusMessage.textContent = '', 3000);
+        });
+        gif.on('progress', function(p) {
+             statusMessage.textContent = `GIFエンコード中... ${Math.round(p * 100)}%`;
+        });
+        recordFrame(); // 録画開始
+    });
+}
+
+
 copyLinkButton.addEventListener('click', () => {
-    console.log("Copy link button clicked.");
     shareLinkInput.select();
     try {
         document.execCommand('copy');
@@ -237,7 +306,8 @@ window.addEventListener('resize', () => {
         // リサイズ時も経過時間を考慮してキーワードを再生成する必要がある
         const currentTime = Date.now();
         const elapsedTime = currentTime - animationStartTime;
-        const finalChunkSize = originalMessage.length > 0 ? originalMessage.length : 5;
+        const longestLineLength = originalMessage.split('\n').reduce((max, line) => Math.max(max, line.trim().length), 0);
+        const finalChunkSize = longestLineLength > 0 ? longestLineLength : 5;
         const currentChunkSize = calculateChunkSize(elapsedTime, animationDuration, 5, finalChunkSize);
         const newKeywords = generateKeywordsFromText(originalMessage, currentChunkSize);
         initializeStreams(newKeywords); // リサイズ時は新しいキーワードリストでストリームを再初期化
@@ -253,25 +323,29 @@ function init() {
     if (encodedDataParam) {
         try {
             // Base64 デコードしてから UTF-8 バイト列を文字列にデコード
+            const decodedBytes = Uint8Array.from(atob(encodedDataParam), c => c.charCodeAt(0));
             const data = JSON.parse(new TextDecoder().decode(decodedBytes));
             if (data && data.message) {
                 const message = data.message;
-                console.log(`Decoded message from URL: "${message}"`);
                 userMessageInput.value = message;
                 originalMessage = message; // 元のメッセージを保存
                 const newKeywords = generateKeywordsFromText(message, 5); // 最初は5文字で分割
-                console.log("Starting matrix from URL parameter.");
+                startMatrix(newKeywords, false); // Loaded from URL, do not show controls
+            } else {
+                 // データ形式が不正な場合
+                 console.error("Decoded data is missing 'message' property.");
+                 resetToInputForm(); // 入力フォームに戻す
             }
         } catch (error) {
             console.error("Failed to decode or parse URL parameter:", error);
             // エラー発生時は通常通り入力画面を表示
-            inputSection.classList.remove('hidden');
-            matrixSection.classList.add('hidden');
-            canvas.classList.add('hidden');
+            resetToInputForm(); // 入力フォームに戻す
         }
     } else {
+        // パラメータがない場合は入力フォームを表示
         inputSection.classList.remove('hidden');
         matrixSection.classList.add('hidden');
+        canvas.classList.add('hidden');
         if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden');
     }
 }
