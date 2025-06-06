@@ -10,7 +10,6 @@ const shareLinkInput = document.getElementById('shareLink');
 const copyLinkButton = document.getElementById('copyLinkButton');
 const resetButton = document.getElementById('resetButton');
 const backToHomeOverlayButtonContainer = document.getElementById('backToHomeOverlayButtonContainer');
-const backToHomeOverlayButton = document.getElementById('backToHomeOverlayButton');
 
 console.log("Script loaded.");
 let originalMessage = ""; // 元のメッセージを保持する変数
@@ -35,7 +34,6 @@ let frameCount = 0; // グローバルスコープにframeCountを宣言
 function initializeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    console.log(`Canvas initialized: width=${canvas.width}, height=${canvas.height}`);
     rows = Math.floor(canvas.height / fontSize);
 }
 
@@ -43,7 +41,6 @@ function initializeStreams(customKeywords = []) {
     streams = [];
     const activeKeywords = customKeywords.length > 0 ? customKeywords : globalKeywords;
     keywordAppearanceProbability = customKeywords.length > 0 ? 0.002 : 0.0005; // カスタムメッセージがある場合は少し目立たせる
-    console.log(`Initializing streams with keywords:`, activeKeywords);
 
     for (let y = 0; y < rows; y++) {
         streams[y] = {
@@ -68,7 +65,6 @@ function calculateChunkSize(elapsedTime, totalDuration, initialChunkSize, finalC
 
 function generateKeywordsFromText(text, chunkSize = 5) {
     if (!text || text.trim() === "") return [];
-    console.log(`Generating keywords for text: "${text}" with chunkSize: ${chunkSize}`);
     const cleanedText = text.replace(/\s+/g, ' '); // 連続する空白を一つに
     const words = [];
     // chunkSize がメッセージ長以上なら、メッセージ全体を一つの要素とする
@@ -90,7 +86,6 @@ function draw() {
     frameCount++;
     if (frameCount % updateIntervalFrames === 0) {
         const currentTime = Date.now();
-        const elapsedTime = currentTime - animationStartTime;
         console.log(`Frame ${frameCount}: Updating keywords. Elapsed time: ${elapsedTime}ms`);
         const finalChunkSize = originalMessage.length > 0 ? originalMessage.length : 5; // メッセージがない場合はデフォルト5
         const currentChunkSize = calculateChunkSize(elapsedTime, animationDuration, 5, finalChunkSize);
@@ -105,7 +100,6 @@ function draw() {
         }
 
         // 全てのストリームのキーワードリストを更新
-        console.log(`New keywords generated (chunkSize ${currentChunkSize}):`, newKeywords);
         streams.forEach(stream => stream.currentKeywords = newKeywords);
     }
 
@@ -124,7 +118,6 @@ function draw() {
         }
 
         if (!stream.keyword && stream.currentKeywords.length > 0 && Math.random() < keywordAppearanceProbability && stream.x * fontSize < canvas.width / 2) {
-            // console.log(`Stream ${i}: Picking new keyword.`); // 頻繁すぎる可能性あり
             stream.keyword = stream.currentKeywords[Math.floor(Math.random() * stream.currentKeywords.length)];
             stream.keywordIndex = 0;
         }
@@ -134,7 +127,6 @@ function draw() {
 
         if (stream.keyword) {
             charToDraw = stream.keyword[stream.keywordIndex];
-            // console.log(`Stream ${i}: Drawing keyword char "${charToDraw}" at index ${stream.keywordIndex}`); // 頻繁すぎる可能性あり
             charColor = keywordColor; // カスタムメッセージも白で表示
             stream.keywordIndex++;
             if (stream.keywordIndex >= stream.keyword.length) {
@@ -144,7 +136,6 @@ function draw() {
             }
         } else {
             charToDraw = characters[Math.floor(Math.random() * characters.length)];
-            // console.log(`Stream ${i}: Drawing random char "${charToDraw}"`); // 頻繁すぎる可能性あり
         }
         ctx.fillStyle = charColor;
         ctx.fillText(charToDraw, stream.x * fontSize, i * fontSize);
@@ -161,10 +152,8 @@ function draw() {
 }
 
 function startMatrix(customKeywords = [], showControls = false) {
-    console.log(`startMatrix called with showControls: ${showControls}`, 'Keywords:', customKeywords);
     inputSection.classList.add('hidden');
     canvas.classList.remove('hidden'); // Ensure canvas is visible
-    if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.remove('hidden');
 
     if (showControls) {
         matrixSection.classList.remove('hidden');
@@ -173,7 +162,6 @@ function startMatrix(customKeywords = [], showControls = false) {
     }
     initializeCanvas();
     initializeStreams(customKeywords);
-    if (animationInterval) clearInterval(animationInterval);
     animationStartTime = Date.now(); // アニメーション開始時刻を記録
     console.log(`Animation started at ${animationStartTime}`);
     animationInterval = setInterval(draw, animationDelay);
@@ -193,13 +181,10 @@ function startMatrix(customKeywords = [], showControls = false) {
         currentUrl.searchParams.delete('d'); // メッセージがない場合はパラメータを削除
     }
     shareLinkInput.value = currentUrl.toString();
-    console.log(`Share link set to: ${shareLinkInput.value}`);
 }
 
 generateMatrixButton.addEventListener('click', () => {
-    console.log("Generate button clicked.");
     const userText = userMessageInput.value;
-    console.log(`User input text: "${userText}"`);
     if (userText.trim() === "") {
         // `alert` はCanvas環境では推奨されないため、statusMessageを使用
         statusMessage.textContent = "メッセージを入力してください。";
@@ -213,10 +198,8 @@ generateMatrixButton.addEventListener('click', () => {
 });
 
 function resetToInputForm() {
-    console.log("Reset button clicked.");
     matrixSection.classList.add('hidden');
     inputSection.classList.remove('hidden');
-    canvas.classList.add('hidden');
     if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden');
     if (animationInterval) clearInterval(animationInterval);
 
@@ -233,7 +216,6 @@ function resetToInputForm() {
 resetButton.addEventListener('click', resetToInputForm);
 
 if (backToHomeOverlayButton) {
-    backToHomeOverlayButton.addEventListener('click', resetToInputForm);
 }
 
 copyLinkButton.addEventListener('click', () => {
@@ -250,7 +232,6 @@ copyLinkButton.addEventListener('click', () => {
 });
 
 window.addEventListener('resize', () => {
-    console.log("Window resized.");
     if (!canvas.classList.contains('hidden')) { // Check if canvas is visible
         initializeCanvas();
         // リサイズ時も経過時間を考慮してキーワードを再生成する必要がある
@@ -266,15 +247,12 @@ window.addEventListener('resize', () => {
 });
 
 function init() {
-    console.log("init() called.");
     const urlParams = new URLSearchParams(window.location.search);
     const encodedDataParam = urlParams.get('d'); // 難読化されたパラメータ 'd' を取得
-    console.log(`URL parameter 'd': ${encodedDataParam}`);
 
     if (encodedDataParam) {
         try {
             // Base64 デコードしてから UTF-8 バイト列を文字列にデコード
-            const decodedBytes = Uint8Array.from(atob(encodedDataParam), c => c.charCodeAt(0));
             const data = JSON.parse(new TextDecoder().decode(decodedBytes));
             if (data && data.message) {
                 const message = data.message;
@@ -282,7 +260,6 @@ function init() {
                 userMessageInput.value = message;
                 originalMessage = message; // 元のメッセージを保存
                 const newKeywords = generateKeywordsFromText(message, 5); // 最初は5文字で分割
-                startMatrix(newKeywords, false); // Loaded from URL, do not show controls
                 console.log("Starting matrix from URL parameter.");
             }
         } catch (error) {
@@ -295,7 +272,6 @@ function init() {
     } else {
         inputSection.classList.remove('hidden');
         matrixSection.classList.add('hidden');
-        canvas.classList.add('hidden');
         if (backToHomeOverlayButtonContainer) backToHomeOverlayButtonContainer.classList.add('hidden');
     }
 }
