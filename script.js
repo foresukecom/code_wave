@@ -223,6 +223,11 @@ function resetToInputForm() {
     userMessageInput.value = "";
     originalMessage = ""; // 元のメッセージもクリア
     shareLinkInput.value = ""; // 共有リンクもクリア
+
+    // URLから 'd' パラメータを削除
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete('d');
+    history.pushState({}, '', currentUrl.toString());
 }
 
 resetButton.addEventListener('click', resetToInputForm);
