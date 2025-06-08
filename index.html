@@ -42,9 +42,12 @@
     <div id="matrixSection" class="container hidden">
         <h1 class="text-2xl font-bold text-green-400 mb-4 text-center">Matrix Effect</h1>
         <div id="shareLinkContainer">
-            <p>このマトリックスを共有:</p>
-            <input type="text" id="shareLink" readonly>
-            <button id="copyLinkButton" class="button-style w-full mt-2">リンクをコピー</button>
+            <div class="flex justify-between items-center mb-2">
+                <p>SNS共有用テキスト:</p>
+                <button id="openInNewTabButton" class="button-style px-3 py-2 text-sm">プレビューを表示</button>
+            </div>
+            <textarea id="shareText" readonly rows="4" class="w-full mb-2"></textarea>
+            <button id="copyLinkButton" class="button-style w-full">SNS用テキストをコピー</button>
         </div>
         <div id="controls">
             <button id="resetButton" class="button-style bg-gray-600 hover:bg-gray-500">新しいメッセージを作成</button>

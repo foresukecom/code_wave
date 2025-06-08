@@ -6,8 +6,9 @@ const matrixSection = document.getElementById('matrixSection');
 const userMessageInput = document.getElementById('userMessage');
 const generateMatrixButton = document.getElementById('generateMatrixButton');
 const statusMessage = document.getElementById('statusMessage');
-const shareLinkInput = document.getElementById('shareLink');
+const shareTextArea = document.getElementById('shareText');
 const copyLinkButton = document.getElementById('copyLinkButton');
+const openInNewTabButton = document.getElementById('openInNewTabButton');
 const resetButton = document.getElementById('resetButton');
 const backToHomeOverlayButtonContainer = document.getElementById('backToHomeOverlayButtonContainer');
 const backToHomeOverlayButton = document.getElementById('backToHomeOverlayButton'); // オーバーレイボタンの要素を取得
@@ -187,7 +188,15 @@ function startMatrix(customKeywords = [], showControls = false) {
     } else {
         currentUrl.searchParams.delete('d'); // メッセージがない場合はパラメータを削除
     }
-    shareLinkInput.value = currentUrl.toString();
+    const urlString = currentUrl.toString();
+    
+    // SNS共有用テキストを生成
+    const shareTemplate = `🌊 Matrix Digital Rain でメッセージを作成しました！
+デジタルレインの中に隠されたメッセージを見つけてみてください✨
+#Matrix #DigitalRain #メッセージ
+${urlString}`;
+    
+    shareTextArea.value = shareTemplate;
 }
 
 generateMatrixButton.addEventListener('click', () => {
@@ -212,7 +221,7 @@ function resetToInputForm() {
 
     userMessageInput.value = "";
     originalMessage = ""; // 元のメッセージもクリア
-    shareLinkInput.value = ""; // 共有リンクもクリア
+    shareTextArea.value = ""; // SNS用テキストもクリア
 
     // URLから 'd' パラメータを削除
     const currentUrl = new URL(window.location.href);
@@ -289,15 +298,26 @@ if (saveGifButton) {
 
 
 copyLinkButton.addEventListener('click', () => {
-    shareLinkInput.select();
+    shareTextArea.select();
     try {
         document.execCommand('copy');
-        statusMessage.textContent = 'リンクがコピーされました！';
+        statusMessage.textContent = 'SNS用テキストがコピーされました！';
     } catch (err) {
         statusMessage.textContent = 'コピーに失敗しました。';
         console.error('Failed to copy: ', err);
     }
     setTimeout(() => statusMessage.textContent = '', 3000);
+});
+
+openInNewTabButton.addEventListener('click', () => {
+    const shareText = shareTextArea.value;
+    if (shareText) {
+        // URLを抽出してタブで開く
+        const urlMatch = shareText.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+            window.open(urlMatch[0], '_blank');
+        }
+    }
 });
 
 window.addEventListener('resize', () => {
