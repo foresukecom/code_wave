@@ -230,9 +230,9 @@ function startMatrix(customKeywords = [], showControls = false) {
     const urlString = currentUrl.toString();
     
     // SNS共有用テキストを生成
-    const shareTemplate = `🌊 Digital Rain でメッセージを作成しました！
-デジタルレインの中に隠されたメッセージを見つけてみてください✨
-#DigitalRain #CyberEffect #メッセージ
+    const shareTemplate = `🌊 Code Wave でメッセージを作成しました！
+コードの浪の中に隠されたメッセージを見つけてみてください✨
+#CodeWave #CyberEffect #メッセージ
 ${urlString}`;
     
     shareTextArea.value = shareTemplate;
@@ -337,7 +337,7 @@ if (saveGifButton) {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'digital_rain_message_animation.gif';
+            link.download = 'code_wave_message_animation.gif';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
