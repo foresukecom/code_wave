@@ -28,29 +28,61 @@
     <canvas id="matrixCanvas"></canvas>
 
     <!-- トップページへ戻るボタン (画面隅に表示) -->
-    <div id="backToHomeOverlayButtonContainer" class="hidden">
-        <button id="backToHomeOverlayButton" class="button-style">トップへ戻る</button>
+    <div id="backToHomeOverlayButtonContainer" class="hidden theme-classic">
+        <button id="backToHomeOverlayButton" class="button-style theme-button">トップへ戻る</button>
     </div>
 
-    <div id="inputSection" class="container">
-        <h1 class="text-2xl font-bold text-green-400 mb-4 text-center">Digital Rain Generator</h1>
+    <div id="inputSection" class="container theme-classic">
+        <h1 class="text-2xl font-bold theme-title mb-4 text-center">Digital Rain Generator</h1>
         <p class="text-sm text-gray-300 mb-4 text-center">SNSで共有したいメッセージを入力してください。メッセージはデジタルレインの背景に「こっそり」と表示されます。</p>
         <textarea id="userMessage" placeholder="ここにメッセージを入力..." maxlength="100"></textarea>
-        <button id="generateMatrixButton" class="button-style w-full">デジタルレインを生成</button>
+        
+        <div class="color-selection mb-4">
+            <p class="text-sm text-gray-300 mb-2">カラーテーマを選択:</p>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <label class="color-option">
+                    <input type="radio" name="colorTheme" value="classic" checked>
+                    <span class="color-preview classic-theme"></span>
+                    <span class="color-label">クラシック</span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="colorTheme" value="blue">
+                    <span class="color-preview blue-theme"></span>
+                    <span class="color-label">ブルー</span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="colorTheme" value="purple">
+                    <span class="color-preview purple-theme"></span>
+                    <span class="color-label">パープル</span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="colorTheme" value="red">
+                    <span class="color-preview red-theme"></span>
+                    <span class="color-label">レッド</span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="colorTheme" value="orange">
+                    <span class="color-preview orange-theme"></span>
+                    <span class="color-label">オレンジ</span>
+                </label>
+            </div>
+        </div>
+        
+        <button id="generateMatrixButton" class="button-style theme-button w-full">デジタルレインを生成</button>
     </div>
 
-    <div id="matrixSection" class="container hidden">
-        <h1 class="text-2xl font-bold text-green-400 mb-4 text-center">Digital Rain Effect</h1>
+    <div id="matrixSection" class="container theme-classic hidden">
+        <h1 class="text-2xl font-bold theme-title mb-4 text-center">Digital Rain Effect</h1>
         <div id="shareLinkContainer">
             <div class="flex justify-between items-center mb-2">
                 <p>SNS共有用テキスト:</p>
-                <button id="openInNewTabButton" class="button-style px-3 py-2 text-sm">プレビューを表示</button>
+                <button id="openInNewTabButton" class="button-style theme-button px-3 py-2 text-sm">プレビューを表示</button>
             </div>
             <textarea id="shareText" readonly rows="4" class="w-full mb-2"></textarea>
-            <button id="copyLinkButton" class="button-style w-full">SNS用テキストをコピー</button>
+            <button id="copyLinkButton" class="button-style theme-button w-full">SNS用テキストをコピー</button>
         </div>
         <div id="controls">
-            <button id="resetButton" class="button-style bg-gray-600 hover:bg-gray-500">新しいメッセージを作成</button>
+            <button id="resetButton" class="button-style theme-button bg-gray-600 hover:bg-gray-500">新しいメッセージを作成</button>
         </div>
         <div id="statusMessage"></div>
     </div>

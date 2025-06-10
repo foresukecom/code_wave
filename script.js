@@ -17,8 +17,18 @@ const saveGifButton = document.getElementById('saveGifButton'); // GIF保存ボ�
 let originalMessage = ""; // 元のメッセージを保持する変数
 
 const globalKeywords = ["DIGITAL", "CODE", "CYBER", "REALITY", "VIRTUAL"]; // デフォルトキーワード
-const keywordColor = '#FFF';
-const defaultCharColor = '#0F0';
+// 色テーマの定義
+const colorThemes = {
+    classic: { default: '#0F0', keyword: '#FFF', bg: 'rgba(0, 0, 0, 0.04)' },
+    blue: { default: '#00BFFF', keyword: '#FFF', bg: 'rgba(0, 0, 20, 0.04)' },
+    purple: { default: '#9932CC', keyword: '#FFF', bg: 'rgba(20, 0, 20, 0.04)' },
+    red: { default: '#FF4500', keyword: '#FFF', bg: 'rgba(20, 0, 0, 0.04)' },
+    orange: { default: '#FF8C00', keyword: '#FFF', bg: 'rgba(20, 10, 0, 0.04)' }
+};
+
+let currentTheme = 'classic';
+let keywordColor = colorThemes[currentTheme].keyword;
+let defaultCharColor = colorThemes[currentTheme].default;
 let keywordAppearanceProbability = 0.003; // キーワードの出現頻度を少し下げる
 
 const matrixChars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍｦｲｸｺｿﾁﾄﾉﾌﾔﾖﾙﾚﾛﾝ';
@@ -33,6 +43,31 @@ const updateIntervalFrames = 60; // 約1秒ごとにキーワードリストを�
 const animationDelay = 50;
 
 let frameCount = 0; // グローバルスコープにframeCountを宣言
+
+// UIテーマ更新関数
+function updateUITheme(themeName) {
+    const containers = [inputSection, matrixSection, backToHomeOverlayButtonContainer];
+    const themeClasses = ['theme-classic', 'theme-blue', 'theme-purple', 'theme-red', 'theme-orange'];
+    
+    containers.forEach(container => {
+        if (container) { // 要素が存在する場合のみ処理
+            // 既存のテーマクラスを削除
+            themeClasses.forEach(themeClass => {
+                container.classList.remove(themeClass);
+            });
+            // 新しいテーマクラスを追加
+            container.classList.add(`theme-${themeName}`);
+        }
+    });
+}
+
+// 色選択の変更を監視
+document.addEventListener('change', (event) => {
+    if (event.target.name === 'colorTheme') {
+        const selectedTheme = event.target.value;
+        updateUITheme(selectedTheme);
+    }
+});
 
 function initializeCanvas() {
     canvas.width = window.innerWidth;
@@ -87,7 +122,7 @@ function generateKeywordsFromText(text, chunkSize = 5) {
 }
 
 function draw() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+    ctx.fillStyle = colorThemes[currentTheme].bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.font = fontSize + 'px monospace';
 
@@ -113,7 +148,7 @@ function draw() {
         const stream = streams[i];
         if (stream.keywordDisplayCooldown > 0) {
             stream.keywordDisplayCooldown--;
-            ctx.fillStyle = defaultCharColor;
+            ctx.fillStyle = colorThemes[currentTheme].default;
             const text = characters[Math.floor(Math.random() * characters.length)];
             ctx.fillText(text, stream.x * fontSize, i * fontSize);
             stream.x++;
@@ -129,11 +164,11 @@ function draw() {
         }
 
         let charToDraw;
-        let charColor = defaultCharColor;
+        let charColor = colorThemes[currentTheme].default;
 
         if (stream.keyword) {
             charToDraw = stream.keyword[stream.keywordIndex];
-            charColor = keywordColor; // カスタムメッセージも白で表示
+            charColor = colorThemes[currentTheme].keyword; // カスタムメッセージも白で表示
             stream.keywordIndex++;
             if (stream.keywordIndex >= stream.keyword.length) {
                 stream.keyword = null;
@@ -142,6 +177,7 @@ function draw() {
             }
         } else {
             charToDraw = characters[Math.floor(Math.random() * characters.length)];
+            charColor = colorThemes[currentTheme].default;
         }
         ctx.fillStyle = charColor;
         ctx.fillText(charToDraw, stream.x * fontSize, i * fontSize);
@@ -180,7 +216,10 @@ function startMatrix(customKeywords = [], showControls = false) {
     currentUrl.searchParams.delete('d');
 
     if (userMessageInput.value) { // userMessageInput.value が存在する場合のみパラメータを設定
-        const dataToEncode = { message: userMessageInput.value };
+        const dataToEncode = { 
+            message: userMessageInput.value,
+            theme: currentTheme
+        };
         const jsonString = JSON.stringify(dataToEncode);
         // UTF-8 バイト列にエンコードしてから Base64 エンコード
         const encodedData = btoa(String.fromCharCode(...new TextEncoder().encode(jsonString)));
@@ -206,6 +245,16 @@ generateMatrixButton.addEventListener('click', () => {
         setTimeout(() => statusMessage.textContent = '', 3000);
         return;
     }
+    
+    // 選択された色テーマを取得
+    const selectedTheme = document.querySelector('input[name="colorTheme"]:checked').value;
+    currentTheme = selectedTheme;
+    keywordColor = colorThemes[currentTheme].keyword;
+    defaultCharColor = colorThemes[currentTheme].default;
+    
+    // UIテーマも更新
+    updateUITheme(selectedTheme);
+    
     originalMessage = userText; // 元のメッセージを保存
     const newKeywords = generateKeywordsFromText(userText, 5); // 最初は5文字で分割
 
@@ -222,6 +271,20 @@ function resetToInputForm() {
     userMessageInput.value = "";
     originalMessage = ""; // 元のメッセージもクリア
     shareTextArea.value = ""; // SNS用テキストもクリア
+    
+    // テーマをクラシックにリセット
+    document.querySelector('input[name="colorTheme"][value="classic"]').checked = true;
+    updateUITheme('classic');
+    currentTheme = 'classic';
+    
+    // オーバーレイボタンも隠す際にテーマをリセット
+    if (backToHomeOverlayButtonContainer) {
+        const themeClasses = ['theme-classic', 'theme-blue', 'theme-purple', 'theme-red', 'theme-orange'];
+        themeClasses.forEach(themeClass => {
+            backToHomeOverlayButtonContainer.classList.remove(themeClass);
+        });
+        backToHomeOverlayButtonContainer.classList.add('theme-classic');
+    }
 
     // URLから 'd' パラメータを削除
     const currentUrl = new URL(window.location.href);
@@ -347,8 +410,17 @@ function init() {
             const data = JSON.parse(new TextDecoder().decode(decodedBytes));
             if (data && data.message) {
                 const message = data.message;
+                const theme = data.theme || 'classic'; // テーマが指定されていない場合はクラシック
+                
                 userMessageInput.value = message;
                 originalMessage = message; // 元のメッセージを保存
+                
+                // テーマを適用
+                currentTheme = theme;
+                keywordColor = colorThemes[currentTheme].keyword;
+                defaultCharColor = colorThemes[currentTheme].default;
+                updateUITheme(theme);
+                
                 const newKeywords = generateKeywordsFromText(message, 5); // 最初は5文字で分割
                 startMatrix(newKeywords, false); // Loaded from URL, do not show controls
             } else {

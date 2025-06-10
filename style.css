@@ -35,18 +35,13 @@ canvas {
     padding: 10px;
     margin-bottom: 15px;
     border-radius: 6px;
-    border: 1px solid #0F0;
     background-color: rgba(0,0,0,0.7);
-    color: #0F0;
     font-size: 16px;
     resize: vertical;
 }
-#inputSection textarea::placeholder {
-    color: #0A0;
-}
+/* プレースホルダーとテキストエリアの色はテーマクラスで設定 */
 .button-style {
     padding: 12px 20px;
-    background-color: #0A0; /* よりマトリックス風の色 */
     color: #000;
     font-weight: bold;
     border: none;
@@ -54,12 +49,8 @@ canvas {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
-.button-style:hover {
-    background-color: #0F0;
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
-}
+/* ボタンの色とホバー効果はテーマクラスで設定 */
 .button-style:disabled {
     background-color: #555;
     color: #888;
@@ -86,13 +77,12 @@ canvas {
 #shareLink, #shareText {
     padding: 10px;
     border-radius: 6px;
-    border: 1px solid #0F0;
     background-color: rgba(0,0,0,0.7);
-    color: #0F0;
     font-size: 14px;
     word-break: break-all;
     resize: vertical;
 }
+/* 入力フィールドの色はテーマクラスで設定 */
 
 #shareText {
     font-family: inherit;
@@ -119,6 +109,201 @@ canvas {
     z-index: 10; /* 他の要素より手前に表示 */
 }
 
-#backToHomeOverlayButton {
-    background-color: rgba(0, 170, 0, 0.7); /* 少し透明度を持たせる */
+/* オーバーレイボタンの色はテーマクラスで設定 */
+
+/* 色選択UI */
+.color-selection {
+    text-align: center;
+}
+
+.color-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.color-option:hover {
+    transform: scale(1.05);
+}
+
+.color-option input[type="radio"] {
+    display: none;
+}
+
+.color-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    margin-bottom: 5px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.color-option input[type="radio"]:checked + .color-preview {
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.color-label {
+    font-size: 12px;
+    color: #ccc;
+}
+
+/* 各色テーマのプレビュー */
+.classic-theme {
+    background: linear-gradient(45deg, #0F0, #090);
+}
+
+.blue-theme {
+    background: linear-gradient(45deg, #00BFFF, #0080FF);
+}
+
+.purple-theme {
+    background: linear-gradient(45deg, #9932CC, #7B68EE);
+}
+
+.red-theme {
+    background: linear-gradient(45deg, #FF4500, #DC143C);
+}
+
+.orange-theme {
+    background: linear-gradient(45deg, #FF8C00, #FFA500);
+}
+
+/* UI テーマスタイル */
+.theme-classic {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.theme-classic .theme-title {
+    color: #0F0;
+}
+
+.theme-classic .theme-button {
+    background-color: #0A0;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.theme-classic .theme-button:hover {
+    background-color: #0F0;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+}
+
+.theme-classic textarea, .theme-classic input, .theme-classic #shareText {
+    border: 1px solid #0F0;
+    color: #0F0;
+}
+
+.theme-classic textarea::placeholder {
+    color: #0A0;
+}
+
+.theme-blue {
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+}
+
+.theme-blue .theme-title {
+    color: #00BFFF;
+}
+
+.theme-blue .theme-button {
+    background-color: #0080FF;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.theme-blue .theme-button:hover {
+    background-color: #00BFFF;
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.8);
+}
+
+.theme-blue textarea, .theme-blue input, .theme-blue #shareText {
+    border: 1px solid #00BFFF;
+    color: #00BFFF;
+}
+
+.theme-blue textarea::placeholder {
+    color: #0080FF;
+}
+
+.theme-purple {
+    box-shadow: 0 0 20px rgba(153, 50, 204, 0.3);
+}
+
+.theme-purple .theme-title {
+    color: #9932CC;
+}
+
+.theme-purple .theme-button {
+    background-color: #7B68EE;
+    box-shadow: 0 0 10px rgba(153, 50, 204, 0.5);
+}
+
+.theme-purple .theme-button:hover {
+    background-color: #9932CC;
+    box-shadow: 0 0 15px rgba(153, 50, 204, 0.8);
+}
+
+.theme-purple textarea, .theme-purple input, .theme-purple #shareText {
+    border: 1px solid #9932CC;
+    color: #9932CC;
+}
+
+.theme-purple textarea::placeholder {
+    color: #7B68EE;
+}
+
+.theme-red {
+    box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+}
+
+.theme-red .theme-title {
+    color: #FF4500;
+}
+
+.theme-red .theme-button {
+    background-color: #DC143C;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+}
+
+.theme-red .theme-button:hover {
+    background-color: #FF4500;
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
+}
+
+.theme-red textarea, .theme-red input, .theme-red #shareText {
+    border: 1px solid #FF4500;
+    color: #FF4500;
+}
+
+.theme-red textarea::placeholder {
+    color: #DC143C;
+}
+
+.theme-orange {
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+}
+
+.theme-orange .theme-title {
+    color: #FF8C00;
+}
+
+.theme-orange .theme-button {
+    background-color: #FFA500;
+    box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+}
+
+.theme-orange .theme-button:hover {
+    background-color: #FF8C00;
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+}
+
+.theme-orange textarea, .theme-orange input, .theme-orange #shareText {
+    border: 1px solid #FF8C00;
+    color: #FF8C00;
+}
+
+.theme-orange textarea::placeholder {
+    color: #FFA500;
 }
