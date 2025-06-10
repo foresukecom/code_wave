@@ -16,7 +16,7 @@ const saveGifButton = document.getElementById('saveGifButton'); // GIF保存ボ�
 
 let originalMessage = ""; // 元のメッセージを保持する変数
 
-const globalKeywords = ["MATRIX", "CODE", "CYBER", "REALITY", "VIRTUAL"]; // デフォルトキーワード
+const globalKeywords = ["DIGITAL", "CODE", "CYBER", "REALITY", "VIRTUAL"]; // デフォルトキーワード
 const keywordColor = '#FFF';
 const defaultCharColor = '#0F0';
 let keywordAppearanceProbability = 0.003; // キーワードの出現頻度を少し下げる
@@ -191,9 +191,9 @@ function startMatrix(customKeywords = [], showControls = false) {
     const urlString = currentUrl.toString();
     
     // SNS共有用テキストを生成
-    const shareTemplate = `🌊 Matrix Digital Rain でメッセージを作成しました！
+    const shareTemplate = `🌊 Digital Rain でメッセージを作成しました！
 デジタルレインの中に隠されたメッセージを見つけてみてください✨
-#Matrix #DigitalRain #メッセージ
+#DigitalRain #CyberEffect #メッセージ
 ${urlString}`;
     
     shareTextArea.value = shareTemplate;
@@ -274,7 +274,7 @@ if (saveGifButton) {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'matrix_message_animation.gif';
+            link.download = 'digital_rain_message_animation.gif';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
