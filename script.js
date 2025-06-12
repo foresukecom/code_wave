@@ -469,7 +469,26 @@ window.addEventListener('resize', () => {
     if (!inputSection.classList.contains('hidden')) canvas.classList.add('hidden');
 });
 
+// OGP URLを動的に設定
+function setDynamicOGP() {
+    const currentUrl = window.location.origin + window.location.pathname;
+    const ogUrl = document.getElementById('ogUrl');
+    const ogImage = document.getElementById('ogImage');
+    
+    if (ogUrl) {
+        ogUrl.setAttribute('content', currentUrl);
+    }
+    
+    if (ogImage) {
+        // プレビュー画像のURLも動的に設定
+        ogImage.setAttribute('content', `${window.location.origin}/images/matrix-preview.png`);
+    }
+}
+
 function init() {
+    // OGP設定を最初に実行
+    setDynamicOGP();
+    
     const urlParams = new URLSearchParams(window.location.search);
     const encodedDataParam = urlParams.get('d'); // 難読化されたパラメータ 'd' を取得
 
