@@ -44,6 +44,42 @@ const animationDelay = 50;
 
 let frameCount = 0; // グローバルスコープにframeCountを宣言
 
+// セキュリティ関数: HTMLエスケープ
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// セキュリティ関数: 入力値のサニタイズ
+function sanitizeInput(input) {
+    if (typeof input !== 'string') {
+        return '';
+    }
+    
+    // HTMLタグとJavaScriptを削除
+    let sanitized = input
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // script タグを削除
+        .replace(/<[^>]*>/g, '') // 全HTMLタグを削除
+        .replace(/javascript:/gi, '') // javascript: プロトコルを削除
+        .replace(/on\w+\s*=/gi, '') // イベントハンドラーを削除
+        .trim();
+    
+    // 長さ制限（100文字）
+    if (sanitized.length > 100) {
+        sanitized = sanitized.substring(0, 100);
+    }
+    
+    return sanitized;
+}
+
+// セキュリティ関数: 安全な文字のみを許可
+function validateSafeChars(text) {
+    // 日本語、英数字、基本的な記号のみ許可
+    const allowedPattern = /^[あ-んア-ンー一-龯ａ-ｚＡ-Ｚa-zA-Z0-9０-９\s\n\r.,!?()（）「」『』【】\-ー・。、！？]*$/;
+    return allowedPattern.test(text);
+}
+
 // UIテーマ更新関数
 function updateUITheme(themeName) {
     const containers = [inputSection, matrixSection, backToHomeOverlayButtonContainer];
@@ -216,8 +252,10 @@ function startMatrix(customKeywords = [], showControls = false) {
     currentUrl.searchParams.delete('d');
 
     if (userMessageInput.value) { // userMessageInput.value が存在する場合のみパラメータを設定
+        // エンコード前にもサニタイズを確認
+        const messageToEncode = sanitizeInput(userMessageInput.value);
         const dataToEncode = { 
-            message: userMessageInput.value,
+            message: messageToEncode,
             theme: currentTheme
         };
         const jsonString = JSON.stringify(dataToEncode);
@@ -240,9 +278,41 @@ ${urlString}`;
 
 generateMatrixButton.addEventListener('click', () => {
     const userText = userMessageInput.value; // textareaの値を取得
+    
+    // 入力値のバリデーション
     if (userText.trim() === "") {
         statusMessage.textContent = "メッセージを入力してください。";
         setTimeout(() => statusMessage.textContent = '', 3000);
+        return;
+    }
+    
+    // 入力値をサニタイズ（危険な文字を無効化）
+    const sanitizedText = sanitizeInput(userText);
+    
+    // サニタイズ結果をチェックして警告メッセージを表示
+    if (sanitizedText !== userText) {
+        const removedChars = userText.length - sanitizedText.length;
+        if (removedChars > 0) {
+            statusMessage.textContent = `⚠️ セキュリティのため、${removedChars}文字が削除されました。HTMLタグやスクリプトは安全に無効化されます。`;
+        } else {
+            statusMessage.textContent = "⚠️ セキュリティのため、一部の文字が無効化されました。";
+        }
+        statusMessage.style.color = '#ffa500'; // オレンジ色で警告
+        userMessageInput.value = sanitizedText;
+        setTimeout(() => {
+            statusMessage.textContent = '';
+            statusMessage.style.color = '';
+        }, 4000);
+    }
+    
+    // サニタイズ後の内容が空でないかチェック
+    if (sanitizedText.trim() === "") {
+        statusMessage.textContent = "有効な文字が含まれていません。日本語、英数字、基本的な記号を使用してください。";
+        statusMessage.style.color = '#ff4444';
+        setTimeout(() => {
+            statusMessage.textContent = '';
+            statusMessage.style.color = '';
+        }, 4000);
         return;
     }
     
@@ -255,8 +325,8 @@ generateMatrixButton.addEventListener('click', () => {
     // UIテーマも更新
     updateUITheme(selectedTheme);
     
-    originalMessage = userText; // 元のメッセージを保存
-    const newKeywords = generateKeywordsFromText(userText, 5); // 最初は5文字で分割
+    originalMessage = sanitizedText; // サニタイズされたメッセージを保存
+    const newKeywords = generateKeywordsFromText(sanitizedText, 5); // 最初は5文字で分割
 
     startMatrix(newKeywords, true); // User generated, show controls
 });
@@ -409,11 +479,25 @@ function init() {
             const decodedBytes = Uint8Array.from(atob(encodedDataParam), c => c.charCodeAt(0));
             const data = JSON.parse(new TextDecoder().decode(decodedBytes));
             if (data && data.message) {
-                const message = data.message;
+                const rawMessage = data.message;
                 const theme = data.theme || 'classic'; // テーマが指定されていない場合はクラシック
                 
-                userMessageInput.value = message;
-                originalMessage = message; // 元のメッセージを保存
+                // URLパラメータからの入力もサニタイズ
+                if (!validateSafeChars(rawMessage)) {
+                    console.error("Unsafe characters detected in URL parameter");
+                    resetToInputForm();
+                    return;
+                }
+                
+                const sanitizedMessage = sanitizeInput(rawMessage);
+                if (!sanitizedMessage || sanitizedMessage.trim() === '') {
+                    console.error("Empty or invalid message in URL parameter");
+                    resetToInputForm();
+                    return;
+                }
+                
+                userMessageInput.value = sanitizedMessage;
+                originalMessage = sanitizedMessage; // サニタイズされたメッセージを保存
                 
                 // テーマを適用
                 currentTheme = theme;
@@ -421,7 +505,7 @@ function init() {
                 defaultCharColor = colorThemes[currentTheme].default;
                 updateUITheme(theme);
                 
-                const newKeywords = generateKeywordsFromText(message, 5); // 最初は5文字で分割
+                const newKeywords = generateKeywordsFromText(sanitizedMessage, 5); // 最初は5文字で分割
                 startMatrix(newKeywords, false); // Loaded from URL, do not show controls
             } else {
                  // データ形式が不正な場合
