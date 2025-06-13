@@ -470,10 +470,16 @@ window.addEventListener('resize', () => {
 });
 
 // OGP URLを動的に設定
-function setDynamicOGP() {
-    const currentUrl = window.location.origin + window.location.pathname;
+function setDynamicOGP(sharedMessage = null) {
+    // 現在のURL（パラメータ含む）を取得
+    const currentUrl = window.location.href;
+    const imageUrl = `${window.location.origin}/images/matrix-preview.png`;
+    
     const ogUrl = document.getElementById('ogUrl');
     const ogImage = document.getElementById('ogImage');
+    const twitterImage = document.getElementById('twitterImage');
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
     
     if (ogUrl) {
         ogUrl.setAttribute('content', currentUrl);
@@ -481,7 +487,27 @@ function setDynamicOGP() {
     
     if (ogImage) {
         // プレビュー画像のURLも動的に設定
-        ogImage.setAttribute('content', `${window.location.origin}/images/matrix-preview.png`);
+        ogImage.setAttribute('content', imageUrl);
+    }
+    
+    if (twitterImage) {
+        // Twitter Card用の画像も設定
+        twitterImage.setAttribute('content', imageUrl);
+    }
+    
+    // 共有されたメッセージがある場合、OGPタイトルと説明を動的に更新
+    if (sharedMessage) {
+        const truncatedMessage = sharedMessage.length > 30 ? 
+            sharedMessage.substring(0, 30) + '...' : sharedMessage;
+        
+        if (ogTitle) {
+            ogTitle.setAttribute('content', `Code Wave - "${truncatedMessage}"`);
+        }
+        
+        if (ogDescription) {
+            ogDescription.setAttribute('content', 
+                `「${truncatedMessage}」がコードの浪に隠されています。サイバーなエフェクトをお楽しみください！`);
+        }
     }
 }
 
@@ -517,6 +543,9 @@ function init() {
                 
                 userMessageInput.value = sanitizedMessage;
                 originalMessage = sanitizedMessage; // サニタイズされたメッセージを保存
+                
+                // 共有されたメッセージでOGPを更新
+                setDynamicOGP(sanitizedMessage);
                 
                 // テーマを適用
                 currentTheme = theme;
