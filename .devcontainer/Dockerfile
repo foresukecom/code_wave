@@ -15,11 +15,13 @@ ENV LANG ja_JP.UTF-8
 ENV LANGUAGE ja_JP:ja
 ENV LC_ALL ja_JP.UTF-8
 
-# Install Node.js (LTS version from NodeSource)
-# The setup script runs apt-get update.
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+# Install Node.js (LTS version 20.x) and the specified npm package
+# NodeSourceのスクリプトがリポジトリの追加、GPGキーの設定、apt-get updateの実行を行います。
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/* # Clean up apt cache
+    npm install -g @anthropic-ai/claude-code && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* # Clean up apt cache and downloaded package files
 
 # Optional: Install a simple HTTP server globally for previewing HTML/JS/CSS
 # You can add other useful global npm packages here, e.g., linters, bundlers if needed globally
