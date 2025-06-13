@@ -473,7 +473,7 @@ window.addEventListener('resize', () => {
 function setDynamicOGP(sharedMessage = null) {
     // 現在のURL（パラメータ含む）を取得
     const currentUrl = window.location.href;
-    const imageUrl = `${window.location.origin}/images/matrix-preview.png`;
+    const imageUrl = `${window.location.origin}/images/codewave-preview.png`;
     
     const ogUrl = document.getElementById('ogUrl');
     const ogImage = document.getElementById('ogImage');
