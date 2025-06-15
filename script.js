@@ -13,8 +13,47 @@ const resetButton = document.getElementById('resetButton');
 const backToHomeOverlayButtonContainer = document.getElementById('backToHomeOverlayButtonContainer');
 const backToHomeOverlayButton = document.getElementById('backToHomeOverlayButton'); // オーバーレイボタンの要素を取得
 const saveGifButton = document.getElementById('saveGifButton'); // GIF保存ボタンの要素を取得
+const langTabJa = document.getElementById('langTabJa');
+const langTabEn = document.getElementById('langTabEn');
 
 let originalMessage = ""; // 元のメッセージを保持する変数
+let currentLanguage = 'ja'; // 現在の言語設定
+
+// SNSシェアテキストのテンプレート
+const shareTextTemplates = {
+    ja: (url) => `🌊 Code Wave でメッセージを作成しました！
+コードの浪の中に隠されたメッセージを見つけてみてください✨
+#CodeWave #CyberEffect #メッセージ
+${url}`,
+    en: (url) => `🌊 Created a message with Code Wave!
+Find the hidden message in the code wave✨
+#CodeWave #CyberEffect #HiddenMessage
+${url}`
+};
+
+// UIテキストの翻訳
+const uiTexts = {
+    ja: {
+        preview: 'プレビューを表示',
+        backToHome: 'トップへ戻る',
+        newMessage: '新しいメッセージを作成',
+        copyButton: 'SNS用テキストをコピー',
+        generateButton: 'コードウェーブを生成'
+    },
+    en: {
+        preview: 'Show Preview',
+        backToHome: 'Back to Home',
+        newMessage: 'Create New Message',
+        copyButton: 'Copy Share Text',
+        generateButton: 'Generate Code Wave'
+    }
+};
+
+// SNSシェアテキストを生成する関数
+function generateShareText(url) {
+    const template = shareTextTemplates[currentLanguage];
+    shareTextArea.value = template(url);
+}
 
 const globalKeywords = ["DIGITAL", "CODE", "CYBER", "REALITY", "VIRTUAL"]; // デフォルトキーワード
 // 色テーマの定義
@@ -268,12 +307,7 @@ function startMatrix(customKeywords = [], showControls = false) {
     const urlString = currentUrl.toString();
     
     // SNS共有用テキストを生成
-    const shareTemplate = `🌊 Code Wave でメッセージを作成しました！
-コードの浪の中に隠されたメッセージを見つけてみてください✨
-#CodeWave #CyberEffect #メッセージ
-${urlString}`;
-    
-    shareTextArea.value = shareTemplate;
+    generateShareText(urlString);
 }
 
 generateMatrixButton.addEventListener('click', () => {
@@ -453,6 +487,55 @@ openInNewTabButton.addEventListener('click', () => {
     }
 });
 
+// 言語切り替えタブのイベントリスナー
+langTabJa.addEventListener('click', () => {
+    if (currentLanguage !== 'ja') {
+        currentLanguage = 'ja';
+        updateLanguageTabs();
+        updateUITexts();
+        // 現在のURLでシェアテキストを再生成
+        if (shareTextArea.value) {
+            const urlMatch = shareTextArea.value.match(/https?:\/\/[^\s]+/);
+            if (urlMatch) {
+                generateShareText(urlMatch[0]);
+            }
+        }
+    }
+});
+
+langTabEn.addEventListener('click', () => {
+    if (currentLanguage !== 'en') {
+        currentLanguage = 'en';
+        updateLanguageTabs();
+        updateUITexts();
+        // 現在のURLでシェアテキストを再生成
+        if (shareTextArea.value) {
+            const urlMatch = shareTextArea.value.match(/https?:\/\/[^\s]+/);
+            if (urlMatch) {
+                generateShareText(urlMatch[0]);
+            }
+        }
+    }
+});
+
+// 言語タブの表示状態を更新する関数
+function updateLanguageTabs() {
+    langTabJa.classList.toggle('active', currentLanguage === 'ja');
+    langTabEn.classList.toggle('active', currentLanguage === 'en');
+}
+
+// UIテキストを更新する関数
+function updateUITexts() {
+    const texts = uiTexts[currentLanguage];
+    
+    // ボタンテキストを更新
+    openInNewTabButton.textContent = texts.preview;
+    backToHomeOverlayButton.textContent = texts.backToHome;
+    resetButton.textContent = texts.newMessage;
+    copyLinkButton.textContent = texts.copyButton;
+    generateMatrixButton.textContent = texts.generateButton;
+}
+
 window.addEventListener('resize', () => {
     if (!canvas.classList.contains('hidden')) { // Check if canvas is visible
         initializeCanvas();
@@ -514,6 +597,9 @@ function setDynamicOGP(sharedMessage = null) {
 function init() {
     // OGP設定を最初に実行
     setDynamicOGP();
+    
+    // UIテキストを初期設定
+    updateUITexts();
     
     const urlParams = new URLSearchParams(window.location.search);
     const encodedDataParam = urlParams.get('d'); // 難読化されたパラメータ 'd' を取得

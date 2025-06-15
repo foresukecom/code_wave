@@ -307,3 +307,25 @@ canvas {
 .theme-orange textarea::placeholder {
     color: #FFA500;
 }
+
+/* 言語切り替えタブ */
+.language-tab {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.language-tab:last-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.language-tab.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.language-tab:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}

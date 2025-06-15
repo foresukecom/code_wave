@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <title>Code Wave - Message Generator</title>
-    <meta name="description" content="入力したメッセージがコードの浪の中にこっそり表示されるジェネレーター。生成したエフェクトをSNSで共有しよう！">
+    <title>Code Wave - Message Generator | Hidden Message in Code Matrix</title>
+    <meta name="description" content="入力したメッセージがコードの浪の中にこっそり表示されるジェネレーター。生成したエフェクトをSNSで共有しよう！ / A generator that secretly displays your message in a code wave. Share your cyberpunk effects on social media!">
 
     <!-- OGP (Open Graph Protocol) tags -->
-    <meta property="og:title" content="Code Wave - Message Generator">
-    <meta property="og:description" content="あなたのメッセージをコードの浪に隠して共有！サイバーなエフェクトを生成します。">
+    <meta property="og:title" content="Code Wave - Message Generator | Hidden Message in Code Matrix">
+    <meta property="og:description" content="あなたのメッセージをコードの浪に隠して共有！サイバーなエフェクトを生成します。/ Hide your message in a code wave and share it! Create cyberpunk effects with hidden messages.">
     <meta property="og:type" content="website">
     <!-- OGP URLとイメージは動的に設定されます -->
     <meta property="og:url" content="https://wave.foresuke.com/" id="ogUrl"> 
@@ -38,11 +38,13 @@
 
     <div id="inputSection" class="container theme-classic">
         <h1 class="text-2xl font-bold theme-title mb-4 text-center">Code Wave Generator</h1>
-        <p class="text-sm text-gray-300 mb-4 text-center">SNSで共有したいメッセージを入力してください。メッセージはコードの浪の背景に「こっそり」と表示されます。</p>
-        <textarea id="userMessage" placeholder="ここにメッセージを入力..." maxlength="100" pattern="[あ-んア-ンー一-龯ａ-ｚＡ-Ｚa-zA-Z0-9０-９\s\n\r.,!?()（）「」『』【】\-ー・。、！？]*"></textarea>
+        <p class="text-sm text-gray-300 mb-2 text-center">SNSで共有したいメッセージを入力してください。メッセージはコードの浪の背景に「こっそり」と表示されます。</p>
+        <p class="text-xs text-gray-400 mb-4 text-center">Enter your message to share on social media. Your message will be "secretly" displayed in the code wave background.</p>
+        <textarea id="userMessage" placeholder="ここにメッセージを入力... / Enter your message here..." maxlength="100" pattern="[あ-んア-ンー一-龯ａ-ｚＡ-Ｚa-zA-Z0-9０-９\s\n\r.,!?()（）「」『』【】\-ー・。、！？]*"></textarea>
         
         <div class="color-selection mb-4">
-            <p class="text-sm text-gray-300 mb-2">カラーテーマを選択:</p>
+            <p class="text-sm text-gray-300 mb-1">カラーテーマを選択:</p>
+            <p class="text-xs text-gray-400 mb-2">Select Color Theme:</p>
             <div class="flex flex-wrap gap-2 justify-center">
                 <label class="color-option">
                     <input type="radio" name="colorTheme" value="classic" checked>
@@ -79,9 +81,16 @@
         <h1 class="text-2xl font-bold theme-title mb-4 text-center">Code Wave Effect</h1>
         <div id="shareLinkContainer">
             <div class="flex justify-between items-center mb-2">
-                <p>SNS共有用テキスト:</p>
+                <p>SNS共有用テキスト / Share Text:</p>
                 <button id="openInNewTabButton" class="button-style theme-button px-3 py-2 text-sm">プレビューを表示</button>
             </div>
+            
+            <!-- 言語切り替えタブ -->
+            <div class="flex mb-3">
+                <button id="langTabJa" class="language-tab active px-4 py-2 text-sm theme-button rounded-l-md">日本語</button>
+                <button id="langTabEn" class="language-tab px-4 py-2 text-sm theme-button rounded-r-md">English</button>
+            </div>
+            
             <textarea id="shareText" readonly rows="4" class="w-full mb-2"></textarea>
             <button id="copyLinkButton" class="button-style theme-button w-full">SNS用テキストをコピー</button>
         </div>
