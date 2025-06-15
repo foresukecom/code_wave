@@ -38,14 +38,14 @@ const uiTexts = {
         backToHome: 'トップへ戻る',
         newMessage: '新しいメッセージを作成',
         copyButton: 'SNS用テキストをコピー',
-        generateButton: 'コードウェーブを生成'
+        generateButton: 'コードウェーブを生成 / Generate Code Wave'
     },
     en: {
         preview: 'Show Preview',
         backToHome: 'Back to Home',
         newMessage: 'Create New Message',
         copyButton: 'Copy Share Text',
-        generateButton: 'Generate Code Wave'
+        generateButton: 'コードウェーブを生成 / Generate Code Wave'
     }
 };
 
