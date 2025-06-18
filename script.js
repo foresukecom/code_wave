@@ -23,11 +23,11 @@ let currentLanguage = 'ja'; // 現在の言語設定
 const shareTextTemplates = {
     ja: (url) => `🌊 Code Wave でメッセージを作成しました！
 コードの浪の中に隠されたメッセージを見つけてみてください✨
-#CodeWave #CyberEffect #メッセージ
+#コードウェーブ #CodeWave
 ${url}`,
     en: (url) => `🌊 Created a message with Code Wave!
 Find the hidden message in the code wave✨
-#CodeWave #CyberEffect #HiddenMessage
+#コードウェーブ #CodeWave
 ${url}`
 };
 
