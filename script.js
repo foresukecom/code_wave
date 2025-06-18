@@ -68,7 +68,7 @@ const colorThemes = {
 let currentTheme = 'classic';
 let keywordColor = colorThemes[currentTheme].keyword;
 let defaultCharColor = colorThemes[currentTheme].default;
-let keywordAppearanceProbability = 0.003; // キーワードの出現頻度を少し下げる
+let keywordAppearanceProbability = 0.005; // キーワードの出現頻度を少し下げる
 
 const matrixChars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍｦｲｸｺｿﾁﾄﾉﾌﾔﾖﾙﾚﾛﾝ';
 const characters = matrixChars.split('');
